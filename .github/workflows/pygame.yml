@@ -21,55 +21,20 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install pyinstaller pygame
-
-    - name: Create PyInstaller Spec
+    
+    - name: Update spec file
       run: |
-        echo "# -*- mode: python -*-" > osobusa_build.spec
-        echo "a = Analysis(['osobusa.py']," >> osobusa_build.spec
-        echo "    pathex=['.']," >> osobusa_build.spec
-        echo "    binaries=[]," >> osobusa_build.spec
-        echo "    datas=[" >> osobusa_build.spec
-        echo "        ('img/*.png', 'img')," >> osobusa_build.spec
-        echo "        ('img/*.mp3', 'img')," >> osobusa_build.spec
-        echo "        ('img/*.wav', 'img')," >> osobusa_build.spec
-        echo "        ('img/*.ogg', 'img')," >> osobusa_build.spec
-        echo "        ('level*_data', '.')," >> osobusa_build.spec
-        echo "        ('icon.ico', '.')" >> osobusa_build.spec
-        echo "    ]," >> osobusa_build.spec
-        echo "    hiddenimports=[]," >> osobusa_build.spec
-        echo "    hookspath=[]," >> osobusa_build.spec
-        echo "    runtime_hooks=[]," >> osobusa_build.spec
-        echo "    excludes=[]," >> osobusa_build.spec
-        echo "    win_no_prefer_redirects=False," >> osobusa_build.spec
-        echo "    win_private_assemblies=False," >> osobusa_build.spec
-        echo "    cipher=None," >> osobusa_build.spec
-        echo "    noarchive=False)" >> osobusa_build.spec
-        echo "pyz = PYZ(a.pure, a.zipped_data, cipher=None)" >> osobusa_build.spec
-        echo "exe = EXE(pyz," >> osobusa_build.spec
-        echo "    a.scripts," >> osobusa_build.spec
-        echo "    a.binaries," >> osobusa_build.spec
-        echo "    a.zipfiles," >> osobusa_build.spec
-        echo "    a.datas," >> osobusa_build.spec
-        echo "    []," >> osobusa_build.spec
-        echo "    name='Osobusa-kun'," >> osobusa_build.spec
-        echo "    debug=False," >> osobusa_build.spec
-        echo "    bootloader_ignore_signals=False," >> osobusa_build.spec
-        echo "    strip=False," >> osobusa_build.spec
-        echo "    upx=True," >> osobusa_build.spec
-        echo "    upx_exclude=[]," >> osobusa_build.spec
-        echo "    runtime_tmpdir=None," >> osobusa_build.spec
-        echo "    console=False," >> osobusa_build.spec
-        echo "    disable_windowed_traceback=False," >> osobusa_build.spec
-        echo "    target_arch=None," >> osobusa_build.spec
-        echo "    codesign_identity=None," >> osobusa_build.spec
-        echo "    entitlements_file=None," >> osobusa_build.spec
-        echo "    icon='icon.ico')" >> osobusa_build.spec
+        $content = Get-Content osobusa.spec
+        $content = $content -replace "datas=\[\]", "datas=[('img/*.*', 'img'), ('level*_data', '.')]"
+        $content = $content -replace "console=True", "console=False"
+        $content = $content -replace "name='osobusa'", "name='Osobusa-kun'"
+        $content | Set-Content osobusa.spec
     
     - name: Build with PyInstaller
       run: |
-        pyinstaller osobusa_build.spec
+        pyinstaller osobusa.spec
     
-    - name: Create ZIP with executable and resources
+    - name: Create ZIP with executable
       run: |
         powershell Compress-Archive -Path "dist/Osobusa-kun.exe" -DestinationPath "Osobusa-kun-windows.zip"
     
