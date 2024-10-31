@@ -21,20 +21,13 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install pyinstaller pygame
-    
-    - name: Update spec file
+
+    - name: Build Application
+      shell: cmd
       run: |
-        $content = Get-Content osobusa.spec
-        $content = $content -replace "datas=\[\]", "datas=[('img/*.*', 'img'), ('level*_data', '.')]"
-        $content = $content -replace "console=True", "console=False"
-        $content = $content -replace "name='osobusa'", "name='Osobusa-kun'"
-        $content | Set-Content osobusa.spec
+        pyinstaller --noconfirm --onefile --windowed --icon="icon.ico" --name="Osobusa-kun" --add-data="img;img/" --add-data="level*_data;." osobusa.py
     
-    - name: Build with PyInstaller
-      run: |
-        pyinstaller osobusa.spec
-    
-    - name: Create ZIP with executable
+    - name: Create ZIP
       run: |
         powershell Compress-Archive -Path "dist/Osobusa-kun.exe" -DestinationPath "Osobusa-kun-windows.zip"
     
