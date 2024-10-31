@@ -1,0 +1,106 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyinstaller pygame  # Agregamos pygame explícitamente
+        # Agrega aquí otras dependencias que necesites
+
+    - name: Create spec file for PyInstaller
+      run: |
+        echo "@echo off
+        python -c \"
+        spec_content = '''
+        # -*- mode: python -*-
+        a = Analysis(
+            ['osobusa.py'],
+            pathex=['.'],
+            binaries=[],
+            datas=[
+                ('img/*.png', 'img'),
+                ('img/*.mp3', 'img'),
+                ('img/*.wav', 'img'),
+                ('img/*.ogg', 'img'),
+                ('level*_data', '.'),
+                ('icon.ico', '.')
+            ],
+            hiddenimports=[],
+            hookspath=[],
+            runtime_hooks=[],
+            excludes=[],
+            win_no_prefer_redirects=False,
+            win_private_assemblies=False,
+            cipher=None,
+            noarchive=False
+        )
+        pyz = PYZ(a.pure, a.zipped_data, cipher=None)
+        exe = EXE(
+            pyz,
+            a.scripts,
+            a.binaries,
+            a.zipfiles,
+            a.datas,
+            [],
+            name='Osobusa-kun',
+            debug=False,
+            bootloader_ignore_signals=False,
+            strip=False,
+            upx=True,
+            upx_exclude=[],
+            runtime_tmpdir=None,
+            console=False,
+            disable_windowed_traceback=False,
+            target_arch=None,
+            codesign_identity=None,
+            entitlements_file=None,
+            icon='icon.ico'
+        )
+        \"\" > osobusa_build.spec" > create_spec.bat
+        
+        ./create_spec.bat
+    
+    - name: Build with PyInstaller
+      run: |
+        pyinstaller osobusa_build.spec
+    
+    - name: Create ZIP with executable and resources
+      run: |
+        powershell Compress-Archive -Path "dist/Osobusa-kun.exe" -DestinationPath "Osobusa-kun-windows.zip"
+    
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false
+    
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./Osobusa-kun-windows.zip
+        asset_name: Osobusa-kun-windows.zip
+        asset_content_type: application/zip
