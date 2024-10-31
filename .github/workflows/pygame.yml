@@ -20,61 +20,50 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pyinstaller pygame  # Agregamos pygame explícitamente
-        # Agrega aquí otras dependencias que necesites
+        pip install pyinstaller pygame
 
-    - name: Create spec file for PyInstaller
+    - name: Create PyInstaller Spec
       run: |
-        echo "@echo off
-        python -c \"
-        spec_content = '''
-        # -*- mode: python -*-
-        a = Analysis(
-            ['osobusa.py'],
-            pathex=['.'],
-            binaries=[],
-            datas=[
-                ('img/*.png', 'img'),
-                ('img/*.mp3', 'img'),
-                ('img/*.wav', 'img'),
-                ('img/*.ogg', 'img'),
-                ('level*_data', '.'),
-                ('icon.ico', '.')
-            ],
-            hiddenimports=[],
-            hookspath=[],
-            runtime_hooks=[],
-            excludes=[],
-            win_no_prefer_redirects=False,
-            win_private_assemblies=False,
-            cipher=None,
-            noarchive=False
-        )
-        pyz = PYZ(a.pure, a.zipped_data, cipher=None)
-        exe = EXE(
-            pyz,
-            a.scripts,
-            a.binaries,
-            a.zipfiles,
-            a.datas,
-            [],
-            name='Osobusa-kun',
-            debug=False,
-            bootloader_ignore_signals=False,
-            strip=False,
-            upx=True,
-            upx_exclude=[],
-            runtime_tmpdir=None,
-            console=False,
-            disable_windowed_traceback=False,
-            target_arch=None,
-            codesign_identity=None,
-            entitlements_file=None,
-            icon='icon.ico'
-        )
-        \"\" > osobusa_build.spec" > create_spec.bat
-        
-        ./create_spec.bat
+        echo "# -*- mode: python -*-" > osobusa_build.spec
+        echo "a = Analysis(['osobusa.py']," >> osobusa_build.spec
+        echo "    pathex=['.']," >> osobusa_build.spec
+        echo "    binaries=[]," >> osobusa_build.spec
+        echo "    datas=[" >> osobusa_build.spec
+        echo "        ('img/*.png', 'img')," >> osobusa_build.spec
+        echo "        ('img/*.mp3', 'img')," >> osobusa_build.spec
+        echo "        ('img/*.wav', 'img')," >> osobusa_build.spec
+        echo "        ('img/*.ogg', 'img')," >> osobusa_build.spec
+        echo "        ('level*_data', '.')," >> osobusa_build.spec
+        echo "        ('icon.ico', '.')" >> osobusa_build.spec
+        echo "    ]," >> osobusa_build.spec
+        echo "    hiddenimports=[]," >> osobusa_build.spec
+        echo "    hookspath=[]," >> osobusa_build.spec
+        echo "    runtime_hooks=[]," >> osobusa_build.spec
+        echo "    excludes=[]," >> osobusa_build.spec
+        echo "    win_no_prefer_redirects=False," >> osobusa_build.spec
+        echo "    win_private_assemblies=False," >> osobusa_build.spec
+        echo "    cipher=None," >> osobusa_build.spec
+        echo "    noarchive=False)" >> osobusa_build.spec
+        echo "pyz = PYZ(a.pure, a.zipped_data, cipher=None)" >> osobusa_build.spec
+        echo "exe = EXE(pyz," >> osobusa_build.spec
+        echo "    a.scripts," >> osobusa_build.spec
+        echo "    a.binaries," >> osobusa_build.spec
+        echo "    a.zipfiles," >> osobusa_build.spec
+        echo "    a.datas," >> osobusa_build.spec
+        echo "    []," >> osobusa_build.spec
+        echo "    name='Osobusa-kun'," >> osobusa_build.spec
+        echo "    debug=False," >> osobusa_build.spec
+        echo "    bootloader_ignore_signals=False," >> osobusa_build.spec
+        echo "    strip=False," >> osobusa_build.spec
+        echo "    upx=True," >> osobusa_build.spec
+        echo "    upx_exclude=[]," >> osobusa_build.spec
+        echo "    runtime_tmpdir=None," >> osobusa_build.spec
+        echo "    console=False," >> osobusa_build.spec
+        echo "    disable_windowed_traceback=False," >> osobusa_build.spec
+        echo "    target_arch=None," >> osobusa_build.spec
+        echo "    codesign_identity=None," >> osobusa_build.spec
+        echo "    entitlements_file=None," >> osobusa_build.spec
+        echo "    icon='icon.ico')" >> osobusa_build.spec
     
     - name: Build with PyInstaller
       run: |
